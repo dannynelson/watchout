@@ -28,28 +28,30 @@ var w = 960,
     y = h / z
 
 var drag = d3.behavior.drag()
-.on("drag", function(d,i) {
-    d.x += d3.event.dx
-    d.y += d3.event.dy
-    d3.select(this).attr("transform", function(d,i){
-        return "translate(" + [ d.x,d.y ] + ")"
-    })
+  .origin(function() {
+      var t = d3.select(this);
+      return {x: t.attr("cx"), y: t.attr("cy")};
+  })
+  .on("drag", function(d,i) {
+      d3.select(this)
+      .attr("cx", d3.event.x)
+      .attr("cy", d3.event.y);
 });
 
 var svg = d3.select("body").append("svg")
     .attr("width", w)
     .attr("height", h);
 
-svg.selectAll('circle')
+var player = svg.selectAll('circle')
     .data([1])
-  .enter().append('circle')
+    .enter().append('circle')
     .attr("class", "player")
     .attr("r", 15)
     .attr('cy', function(d) { return Math.random() * h })
     .attr('cx', function(d) { return Math.random() * w })
     .call(drag)
 
-svg.selectAll("circle")
+var enemies = svg.selectAll("circle")
     .data(d3.range(10))
   .enter().append("circle")
     .attr("class", "enemies")
