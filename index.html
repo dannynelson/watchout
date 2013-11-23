@@ -27,6 +27,8 @@ svg {
 
 </style>
 <body>
+Score: <span class="score">0</span>
+High Score: <span class="maxscore">0</span>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 <script>
@@ -37,6 +39,7 @@ var currentScore = 0;
 setInterval(function(){
   currentScore++;
   checkCollision(enemies, collisionReaction);
+  d3.select('.score').text(currentScore);
 }, 10);
 setInterval(function(){console.log(currentScore)}, 20);
 
@@ -70,6 +73,7 @@ var checkCollision = function(enemies, collisionCallback) {
 
 var collisionReaction = function() {
   if ( currentScore > maxScore ) maxScore = currentScore;
+  d3.select('.maxscore').text(maxScore);
   currentScore = 0;
 }
 
