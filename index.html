@@ -5,7 +5,9 @@
 
 body {
   margin: 0;
-}
+  width: 100%;
+/*  background-color: black;
+*/}
 
 .enemies {
   fill: #000;
@@ -15,11 +17,28 @@ body {
   fill: red;
 }
 
+svg {
+  border: 4px solid black;
+  padding: 20px;
+  display: block;
+  margin: auto;
+  background-color: white;
+}
+
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 <script>
+
+var maxScore = 0;
+var currentScore = 0;
+
+setInterval(function(){
+  currentScore++;
+  checkCollision(enemies, collisionReaction);
+}, 10);
+setInterval(function(){console.log(currentScore)}, 20);
 
 var w = 960,
     h = 500,
@@ -38,27 +57,42 @@ var drag = d3.behavior.drag()
       .attr("cy", d3.event.y);
 });
 
+var checkCollision = function(enemies, collisionCallback) {
+  for (var i = 0; i < enemies[0].length; i++) {
+    var enemy = d3.select(enemies[0][i]);
+    var combinedRadius = 30;
+    var distx = parseFloat(enemy.attr('cx')) - parseFloat(player.attr('cx'));
+    var disty = parseFloat(enemy.attr('cy')) - parseFloat(player.attr('cy'));
+    var separation = Math.sqrt(Math.pow(distx, 2) + Math.pow(disty, 2));
+    if (separation < combinedRadius) collisionCallback();
+  }
+};
+
+var collisionReaction = function() {
+  if ( currentScore > maxScore ) maxScore = currentScore;
+  currentScore = 0;
+}
+
+
 var svg = d3.select("body").append("svg")
     .attr("width", w)
     .attr("height", h);
 
-var player = svg.selectAll('circle')
-    .data([1])
-    .enter().append('circle')
-    .attr("class", "player")
-    .attr("r", 15)
-    .attr('cy', function(d) { return Math.random() * h })
-    .attr('cx', function(d) { return Math.random() * w })
-    .call(drag)
-
 var enemies = svg.selectAll("circle")
     .data(d3.range(10))
-  .enter().append("circle")
+    .enter().append("circle")
     .attr("class", "enemies")
     .attr("r", 15)
     .attr('cy', function(d) { return Math.random() * h })
     .attr('cx', function(d) { return Math.random() * w })
     // .style("fill", function(d) { return d3.hsl(d % x / x * 360, 1, Math.floor(d / x) / y); })
+
+var player = svg.append('circle')
+  .attr("class", "player")
+  .attr("r", 15)
+  .attr('cy', function(d) { return Math.random() * h })
+  .attr('cx', function(d) { return Math.random() * w })
+  .call(drag)
 
 
 
@@ -71,6 +105,8 @@ function update() {
 }
 
 setInterval(update, 1000);
+
+
 
 
 </script>
