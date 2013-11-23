@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Transform Transitions</title>
+<style>
+
+body {
+  margin: 0;
+}
+
+.enemies {
+  fill: #000;
+}
+
+.player {
+  fill: red;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+
+<script>
+
+var w = 960,
+    h = 500,
+    z = 20,
+    x = w / z,
+    y = h / z
+
+var drag = d3.behavior.drag()
+.on("drag", function(d,i) {
+    d.x += d3.event.dx
+    d.y += d3.event.dy
+    d3.select(this).attr("transform", function(d,i){
+        return "translate(" + [ d.x,d.y ] + ")"
+    })
+});
+
+var svg = d3.select("body").append("svg")
+    .attr("width", w)
+    .attr("height", h);
+
+svg.selectAll('circle')
+    .data([1])
+  .enter().append('circle')
+    .attr("class", "player")
+    .attr("r", 15)
+    .attr('cy', function(d) { return Math.random() * h })
+    .attr('cx', function(d) { return Math.random() * w })
+    .call(drag)
+
+svg.selectAll("circle")
+    .data(d3.range(10))
+  .enter().append("circle")
+    .attr("class", "enemies")
+    .attr("r", 15)
+    .attr('cy', function(d) { return Math.random() * h })
+    .attr('cx', function(d) { return Math.random() * w })
+    // .style("fill", function(d) { return d3.hsl(d % x / x * 360, 1, Math.floor(d / x) / y); })
+
+
+
+function update() {
+  d3.select("svg").selectAll(".enemies")
+    .transition()
+      .duration(1000)
+    .attr('cy', function(d) { return Math.random() * h })
+    .attr('cx', function(d) { return Math.random() * w })
+}
+
+setInterval(update, 1000);
+
+
+</script>
