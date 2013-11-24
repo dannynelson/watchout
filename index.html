@@ -6,16 +6,17 @@
 body {
   margin: 0;
   width: 100%;
-/*  background-color: black;
-*/}
+  font: 25px Arial;
+  background-color: yellow;
+}
 
 .enemies {
   fill: #000;
 }
 
-.player {
+/*.player {
   fill: red;
-}
+}*/
 
 svg {
   border: 4px solid black;
@@ -25,40 +26,85 @@ svg {
   background-color: white;
 }
 
+.scoreboard {
+  right: 0px;
+  background-color: yellow;
+  text-align: center;
+}
+
+.score {
+  margin: auto;
+  display: inline-block;
+}
+
+.maxscore {
+  margin:auto;
+  display:inline-block;
+}
+
 </style>
 <body>
-Score: <span class="score">0</span>
-High Score: <span class="maxscore">0</span>
+<div class="scoreboard">
+  <div><b>Score: </b><span class="score">0</span></div>
+  <div><b>High Score: </b><span class="maxscore">0</span></div>
+</div>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 
 <script>
 
 var maxScore = 0;
 var currentScore = 0;
+var w = 960;
+var h = 500;
 
-setInterval(function(){
-  currentScore++;
-  checkCollision(enemies, collisionReaction);
-  d3.select('.score').text(currentScore);
-}, 10);
-setInterval(function(){console.log(currentScore)}, 20);
-
-var w = 960,
-    h = 500,
-    z = 20,
-    x = w / z,
-    y = h / z
+// DRAG BEHAVIOR
 
 var drag = d3.behavior.drag()
   .origin(function() {
-      var t = d3.select(this);
-      return {x: t.attr("cx"), y: t.attr("cy")};
+    var t = d3.select(this);
+    return {x: t.attr("cx"), y: t.attr("cy")};
   })
   .on("drag", function(d,i) {
-      d3.select(this)
-      .attr("cx", d3.event.x)
-      .attr("cy", d3.event.y);
+    d3.select(this)
+    .attr("cx", d3.event.x)
+    .attr("cy", d3.event.y);
 });
+
+// CREATE PAGE NODES
+
+var svg = d3.select("body").append("svg")
+  .attr("width", w)
+  .attr("height", h);
+
+
+
+var enemies = svg.selectAll("circle")
+  .data(d3.range(10))
+  .enter().append("circle")
+  .attr("class", "enemies")
+  .attr("r", 15)
+  .attr('cy', function(d) { return Math.random() * h })
+  .attr('cx', function(d) { return Math.random() * w })
+
+var player = svg.append('circle')
+  .attr("class", "player")
+  .attr("r", 15)
+  .attr("fill", "red")
+  .attr('cy', function(d) { return Math.random() * h })
+  .attr('cx', function(d) { return Math.random() * w })
+  .call(drag)
+
+
+// FUNCTIONS
+
+var collisionReaction = function() {
+  debugger;
+  if (currentScore > maxScore) maxScore = currentScore;
+  d3.select('.maxscore').text(maxScore);
+  currentScore = 0;
+  d3.select('.player').attr('fill', '#'+Math.floor(Math.random()*16777215).toString(16));
+  // d3.select('.player').attr('fill', 'red');
+};
 
 var checkCollision = function(enemies, collisionCallback) {
   for (var i = 0; i < enemies[0].length; i++) {
@@ -71,46 +117,23 @@ var checkCollision = function(enemies, collisionCallback) {
   }
 };
 
-var collisionReaction = function() {
-  if ( currentScore > maxScore ) maxScore = currentScore;
-  d3.select('.maxscore').text(maxScore);
-  currentScore = 0;
-}
+var update = function() {
+  currentScore++;
+  d3.select('.score').text(currentScore);
+  checkCollision(enemies, collisionReaction);
+};
 
-
-var svg = d3.select("body").append("svg")
-    .attr("width", w)
-    .attr("height", h);
-
-var enemies = svg.selectAll("circle")
-    .data(d3.range(10))
-    .enter().append("circle")
-    .attr("class", "enemies")
-    .attr("r", 15)
-    .attr('cy', function(d) { return Math.random() * h })
-    .attr('cx', function(d) { return Math.random() * w })
-    // .style("fill", function(d) { return d3.hsl(d % x / x * 360, 1, Math.floor(d / x) / y); })
-
-var player = svg.append('circle')
-  .attr("class", "player")
-  .attr("r", 15)
-  .attr('cy', function(d) { return Math.random() * h })
-  .attr('cx', function(d) { return Math.random() * w })
-  .call(drag)
-
-
-
-function update() {
+var changeEnemyPositions = function() {
   d3.select("svg").selectAll(".enemies")
     .transition()
-      .duration(1000)
+    .duration(1000)
     .attr('cy', function(d) { return Math.random() * h })
     .attr('cx', function(d) { return Math.random() * w })
-}
+};
 
-setInterval(update, 1000);
+// UPDATES
 
-
-
+setInterval(changeEnemyPositions, 1000);
+setInterval(update, 10);
 
 </script>
